@@ -22,7 +22,7 @@ class Question {
         return userAnswer === this.correctOptionIndex;
     }
 
-    // potential scoring based on question difficulty
+    // scoring based on question difficulty
     getDifficultyValue() {
         const difficultyValues = {
             easy: 100,
@@ -79,10 +79,12 @@ class Quiz {
         return this.user ? this.user.currentScore : 0;
     }
 
+    // checks if quiz is complete
     isQuizComplete() {
         return this.currentQuestionIndex >= this.questions.length - 1 || this.isCompleted;
     }
 
+    // resetting quiz state
     resetQuiz() {
         this.currentQuestionIndex = 0;
         this.isCompleted = false;
@@ -90,6 +92,7 @@ class Quiz {
         this.generator = null;
         this.currentQuestion = null;
     }
+
     // completing quiz flag
     quizCompleted() {
         this.isCompleted = true;
@@ -133,6 +136,7 @@ class Quiz {
         this.generator = questionGenerator(this.questions, this.user, this);
     }
     
+    // starting the question flow using the generator
     startQuestionFlow() {
         const firstQuestion = this.generator.next();
         if (!firstQuestion.done) {
@@ -141,6 +145,7 @@ class Quiz {
         }
     }
     
+    // handling user answer submission when they select an option
     handleAnswerSubmit(userAnswer) {
         if (this.generator && this.currentQuestion) {
             const nextQuestion = this.generator.next(userAnswer);
@@ -155,10 +160,10 @@ class Quiz {
     }
     
     displayQuestion(question) {
+        // Logging question details for debugging
         console.log('Question:', question.questionText);
         console.log('Difficulty:', question.difficulty);
         console.log('Options:', question.options);
-
         console.log('Correct Option Index:', question.correctOptionIndex);
         console.log('Current Score:', this.user.currentScore);
         
@@ -187,7 +192,7 @@ class Quiz {
     }
     
     endQuiz(finalScore) {
-        this.quizCompleted();
+        this.quizCompleted(); // mark quiz as completed
         
         // Display final results in HTML
         const questionElement = document.querySelector('.question');
@@ -285,6 +290,7 @@ function decreaseDifficulty(currentDifficulty) {
     return 'easy';
 }
 
+// Adjust question order to ensure next question matches target difficulty
 function adjustQuestionOrder(questions, targetDifficulty, currentIndex) {
     for (let i = currentIndex + 1; i < questions.length; i++) {
         if (questions[i].difficulty === targetDifficulty) {
@@ -307,8 +313,6 @@ class QuizAPI {
         try {
             const response = await fetch(this.baseURL);
             const data = await response.json();
-            console.log(data.results.length);
-            console.log(data.results.map(item => item.difficulty));
             return data.results.map(item => {
                 const options = [...item.incorrect_answers];
                 const correctIndex = Math.floor(Math.random() * (options.length + 1));
@@ -343,7 +347,7 @@ if (startBtn) {
     startBtn.addEventListener('click', async (event) => {
         event.preventDefault(); // Prevent form submission
         
-        // Get username from input
+        // Get username from input, alert if empty
         const username = usernameInput.value.trim() || alert('Please enter your name to start the quiz.');
 
         if (!username) return; // Stop if no valid username
@@ -352,7 +356,7 @@ if (startBtn) {
         usernameInput.style.display = 'none'; // Hide input field after click
         Array.from(questionBox).forEach(box => box.style.display = 'grid'); // Show question box after starting the quiz
         
-        // Create instances when user clicks start 
+        // Create instances when user clicks start
         const user = new User(username);
         const quizAPI = new QuizAPI();
         const quiz = new Quiz(user, quizAPI);
