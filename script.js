@@ -42,10 +42,6 @@ class Quiz {
         this.isCompleted = false;
         this.generator = null;
         this.currentQuestion = null;
-        
-        // bind methods to this instance to give access to class properties
-        this.handleStartQuiz = this.handleStartQuiz.bind(this);
-        this.handleAnswerSubmit = this.handleAnswerSubmit.bind(this);
     }
 
     addQuestion(question) {
